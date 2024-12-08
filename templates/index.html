@@ -1,10 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Crypto Analyzer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Price Checker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Cryptocurrency Price Trends</h1>
-    <img src="{{ img_url }}" alt="Price Trends">
+    <h1>Cryptocurrency Price Checker</h1>
+
+    <form method="POST">
+        <label for="crypto_symbol">Enter Cryptocurrency Symbol (e.g., bitcoin):</label>
+        <input type="text" id="crypto_symbol" name="crypto_symbol" required>
+        <button type="submit">Check Price</button>
+    </form>
+
+    {% if price %}
+        <p class="result">Current Price: ${{ price }}</p>
+    {% endif %}
+
+    {% if line_chart %}
+        <h2>Price Trend (Line Chart)</h2>
+        {{ line_chart | safe }}
+    {% endif %}
+
+    {% if bar_chart %}
+        <h2>Price Comparison (Bar Chart)</h2>
+        {{ bar_chart | safe }}
+    {% endif %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
 </body>
 </html>
