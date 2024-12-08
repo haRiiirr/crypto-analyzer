@@ -1,13 +1,32 @@
-import matplotlib.pyplot as plt
+import plotly.graph_objs as go
+from plotly.offline import plot
 
-def plot_price_trends(prices, crypto_name="Bitcoin"):
-    plt.figure(figsize=(10, 6))
-    plt.plot(prices["timestamp"], prices["price"], label=f"{crypto_name} Price")
-    plt.title(f"{crypto_name} Price Trends")
-    plt.xlabel("Date")
-    plt.ylabel("Price (USD)")
-    plt.legend()
-    plt.grid()
-    # Save the plot as an image in the static folder
-    plt.savefig("static/price_trends.png")
-    plt.close()
+def generate_line_chart(data, crypto_symbol):
+    dates, prices = zip(*data)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=prices, mode='lines+markers', name=f'{crypto_symbol.capitalize()} Price'))
+    
+    fig.update_layout(
+        title=f"{crypto_symbol.capitalize()} Price Trend",
+        xaxis_title="Date",
+        yaxis_title="Price (USD)",
+        template="plotly_dark"
+    )
+
+    return plot(fig, output_type='div')
+
+def generate_bar_chart(data, crypto_symbol):
+    dates, prices = zip(*data)
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=dates, y=prices, name=f'{crypto_symbol.capitalize()} Price'))
+
+    fig.update_layout(
+        title=f"{crypto_symbol.capitalize()} Price Comparison",
+        xaxis_title="Date",
+        yaxis_title="Price (USD)",
+        template="plotly_dark"
+    )
+
+    return plot(fig, output_type='div')
