@@ -11,13 +11,22 @@ def fetch_crypto_data(crypto_symbol):
     except requests.exceptions.RequestException as e:
         return f"Error fetching data: {e}"
 
-def fetch_historical_data(crypto_symbol, days=7):
-    url = f"https://api.coingecko.com/api/v3/coins/{crypto_symbol}/market_chart?vs_currency=usd&days={days}"
+def fetch_historical_ohlc_data(crypto_symbol, days=7):
+    url = f"https://api.coingecko.com/api/v3/coins/{crypto_symbol}/ohlc?vs_currency=usd&days={days}"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
-        prices = data.get("prices", [])
-        return [(datetime.fromtimestamp(p[0] / 1000), p[1]) for p in prices]
+        ohlc_data = [
+            {
+                "timestamp": datetime.fromtimestamp(item[0] / 1000),
+                "open": item[1],
+                "high": item[2],
+                "low": item[3],
+                "close": item[4],
+            }
+            for item in data
+        ]
+        return ohlc_data
     except requests.exceptions.RequestException as e:
-        return f"Error fetching historical data: {e}"
+        return f"Error fetching OHLC data: {e}"
