@@ -3,34 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Price Checker</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Crypto Data Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js Library CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Cryptocurrency Price Checker</h1>
+    <h1>Cryptocurrency Price Tracker</h1>
+    <canvas id="cryptoChart" width="400" height="200"></canvas>
+    <button id="refreshBtn">Refresh Data</button>
 
-    <form method="POST">
-        <label for="crypto_symbol">Enter Cryptocurrency Symbol (e.g., bitcoin):</label>
-        <input type="text" id="crypto_symbol" name="crypto_symbol" required>
-        <button type="submit">Check Price</button>
-    </form>
-
-    {% if price %}
-        <p class="result">Current Price: ${{ price }}</p>
-    {% endif %}
-
-    {% if line_chart %}
-        <h2>Price Trend (Line Chart)</h2>
-        {{ line_chart | safe }}
-    {% endif %}
-
-    {% if bar_chart %}
-        <h2>Price Comparison (Bar Chart)</h2>
-        {{ bar_chart | safe }}
-    {% endif %}
-
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
+    <script src="script.js"></script>
 </body>
 </html>
