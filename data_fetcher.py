@@ -1,32 +1,28 @@
+from flask import Flask, jsonify
 import requests
-from datetime import datetime
 
-def fetch_crypto_data(crypto_symbol):
-    url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto_symbol}&vs_currencies=usd"
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        return data.get(crypto_symbol, {}).get('usd', "Price not found")
-    except requests.exceptions.RequestException as e:
-        return f"Error fetching data: {e}"
+app = Flask(__name__)
 
-def fetch_historical_ohlc_data(crypto_symbol, days=7):
-    url = f"https://api.coingecko.com/api/v3/coins/{crypto_symbol}/ohlc?vs_currency=usd&days={days}"
+@app.route('/api/crypto', methods=['GET'])
+def fetch_crypto():
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
+        # Fetch real-time Bitcoin price data from CoinDesk API
+        response = requests.get('https://api.coindesk.com/v1/bpi/currentprice.json')
         data = response.json()
-        ohlc_data = [
-            {
-                "timestamp": datetime.fromtimestamp(item[0] / 1000),
-                "open": item[1],
-                "high": item[2],
-                "low": item[3],
-                "close": item[4],
-            }
-            for item in data
-        ]
-        return ohlc_data
-    except requests.exceptions.RequestException as e:
-        return f"Error fetching OHLC data: {e}"
+
+        # Extract the time and current Bitcoin price in USD
+        current_time = data['time']['updated']
+        current_price = data['bpi']['USD']['rate_float']
+
+        # Return the data as JSON
+        return jsonify({
+            'time': current_time,
+            'price': current_price
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    # Run the Flask app on localhost with debug mode enabled
+    app.run(debug=True)
