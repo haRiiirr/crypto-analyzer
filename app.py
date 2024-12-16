@@ -1,31 +1,34 @@
-from flask import Flask, render_template, request
-from data_fetcher import fetch_crypto_data, fetch_historical_data
-from visualizer import generate_line_chart, generate_bar_chart
+from flask import Flask, jsonify, render_template
+import requests
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET", "POST"])
-def home():
-    price = None
-    error = None
-    line_chart = None
-    bar_chart = None
+# Route to serve the main HTML page
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    if request.method == "POST":
-        crypto_symbol = request.form.get("crypto_symbol").lower()
-        price = fetch_crypto_data(crypto_symbol)
-        
-        if isinstance(price, str) and "Error" in price:
-            error = price
-        else:
-            historical_data = fetch_historical_data(crypto_symbol, days=7)
-            if isinstance(historical_data, str) and "Error" in historical_data:
-                error = historical_data
-            else:
-                line_chart = generate_line_chart(historical_data, crypto_symbol)
-                bar_chart = generate_bar_chart(historical_data, crypto_symbol)
+# API route to fetch real-time cryptocurrency data
+@app.route('/api/crypto', methods=['GET'])
+def fetch_crypto():
+    try:
+        # Fetch real-time Bitcoin price data from CoinDesk API
+        response = requests.get('https://api.coindesk.com/v1/bpi/currentprice.json')
+        data = response.json()
 
-    return render_template("index.html", price=price, error=error, line_chart=line_chart, bar_chart=bar_chart)
+        # Extract the time and current Bitcoin price in USD
+        current_time = data['time']['updated']
+        current_price = data['bpi']['USD']['rate_float']
 
-if __name__ == "__main__":
+        # Return the data as JSON
+        return jsonify({
+            'time': current_time,
+            'price': current_price
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Run the Flask app
+if __name__ == '__main__':
     app.run(debug=True)
